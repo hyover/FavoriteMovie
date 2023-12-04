@@ -38,13 +38,13 @@ namespace FavoriteMovie.Models
         // Constructor for CreatedAt
         public Media()
         {
-            CreatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
         }
 
         // Function call before add or update an entity
         public void BeforeSaveChanges()
         {
-            UpdatedAt = DateTime.Now;
+            UpdatedAt = DateTime.UtcNow;
         }
     }
 }
