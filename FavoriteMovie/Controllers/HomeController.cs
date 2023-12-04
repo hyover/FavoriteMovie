@@ -15,12 +15,8 @@ namespace FavoriteMovie.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            _logger.LogInformation("Home page visited at {Time}", DateTime.UtcNow);
+            return RedirectToAction("Index", "Medias");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
