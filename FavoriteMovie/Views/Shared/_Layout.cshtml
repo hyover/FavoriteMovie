@@ -1,31 +1,50 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - FavoriteMovie</title>
+    <title>@ViewData["Title"] - FavoriteMovies</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/FavoriteMovie.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib/virtual-select/dist/virtual-select.min.css" />
+    <link rel="icon" type="image/x-icon" href="~/img/favicon.ico" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">FavoriteMovie</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img class="logo" src="~/img/FavoriteMovies.png" alt="favoritemovies">
+                </a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a class="d-sm-none nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Salut @User.Identity?.Name !</a>
+                }
+                <a class="nav-link text-dark d-flex d-sm-none" asp-area="" asp-controller="Tutorials" asp-action="Index"><svg width="64px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M4 21V19.5C4 16.4624 6.46243 14 9.5 14H12.5C15.5376 14 18 16.4624 18 19.5V21M7 21V18M15 21V18M16.5 6L16.8367 5.49493C17.1969 4.95461 17.9371 4.82782 18.4566 5.21745C19.0073 5.63047 19.0645 6.43549 18.5778 6.92224L17.8536 7.64645C17.6272 7.87282 17.5 8.17986 17.5 8.5M17.5 10V10.2M13.8281 4.89801C14.6435 3.74945 15.9842 3 17.5 3C19.9853 3 22 5.01472 22 7.5C22 9.98528 19.9853 12 17.5 12C16.2549 12 15.1279 11.4943 14.3131 10.6771M15 8.00001C15 5.79086 13.2091 4 11 4C8.79086 4 7 5.79086 7 8.00001C7 10.2092 8.79086 12 11 12C11.8312 12 12.6032 11.7465 13.2429 11.3125C14.3033 10.5931 15 9.37794 15 8.00001Z" stroke="#0080ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"></path></g></svg></a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                    @if (User.IsInRole("Admin") || (User.IsInRole("Member")))
+                        { 
+                            <ul class="navbar-nav flex-grow-1">
+
+                            <li class="nav-item @(ViewContext.RouteData.Values.ContainsKey("controller") && ViewContext.RouteData.Values.ContainsKey("action") && ViewContext.RouteData.Values["controller"].ToString() == "Medias" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Medias" asp-action="Index">Accueil</a>
+                            </li>
+                        
+                            </ul>
+                            <span class="d-flex justify-content-center">Salut @User.Identity?.Name !</span>
+                    }
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -39,7 +58,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2023 - FavoriteMovie - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2023 - FavoriteMovies - By <a href="https://www.valentin-fontaine.fr">Valentin FONTAINE</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
