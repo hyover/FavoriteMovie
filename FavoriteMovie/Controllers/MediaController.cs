@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FavoriteMovie.Data;
 using FavoriteMovie.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FavoriteMovie.Controllers
 {
+    [Authorize]
     public class MediaController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,6 +20,22 @@ namespace FavoriteMovie.Controllers
         {
             _context = context;
         }
+
+        /*----------------------------------------------------------------
+         * Data
+         * --------------------------------------------------------------- */
+        private async Task<(List<Models.MediaType> allMediaTypes, List<Models.MediaGenre> allMediaGenres)> GetMediaTypesAndGenresAsync()
+        {
+            var allMediaTypes = await _context.MediaType.ToListAsync();
+            var allMediaGenres = await _context.MediaGenre.ToListAsync();
+
+            return (allMediaTypes, allMediaGenres);
+        }
+
+        /*----------------------------------------------------------------
+         * Constants
+         * --------------------------------------------------------------- */
+        private const int DefaultPageSize = 8;
 
         // GET: Media
         public async Task<IActionResult> Index()

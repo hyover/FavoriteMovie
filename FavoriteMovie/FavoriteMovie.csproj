@@ -29,6 +29,7 @@
     <Folder Include="Logs\" />
     <Folder Include="Repositories\" />
     <Folder Include="ViewsModels\" />
+    <Folder Include="Views\Media\Partials\" />
   </ItemGroup>
 
 </Project>
