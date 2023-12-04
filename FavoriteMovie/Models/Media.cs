@@ -32,8 +32,8 @@ namespace FavoriteMovie.Models
         public int MediaTypeId { get; set; }
         public int UserId { get; set; }
         public virtual IdentityUser User { get; set; }
-        public MediaType MediaType { get; set; }
-        public List<MediaGenre> ListMediaGenre { get; set; }
+        public virtual MediaType MediaType { get; set; }
+        public virtual ICollection<MediaGenre> ListMediaGenre { get; set; }
 
         // Constructor for CreatedAt
         public Media()
