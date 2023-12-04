@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using FavoriteMovie.Data;
 using FavoriteMovie.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using FavoriteMovie.ViewsModels.Medias;
 
 namespace FavoriteMovie.Controllers
 {
@@ -48,6 +50,102 @@ namespace FavoriteMovie.Controllers
               return _context.Media != null ? 
                           View(await _context.Media.ToListAsync()) :
                           Problem("Entity set 'ApplicationDbContext.Media'  is null.");
+        }
+
+        // Partials Medias with Download Url
+        public async Task<IActionResult> GetMediasWithStreamingLink(int pageIndex = 1, int pageSize = DefaultPageSize, string sortField = "MediaType", string sortOrder = "asc")
+        {
+            // 1) Récupérer l'identifiant de l'utilisateur actuel
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // 2) Récupérer les identifiants des médias favoris de l'utilisateur et les stocker dans un HashSet
+            var favoriteMediaIds = new HashSet<int>(
+                await _context.MediaFavorite
+                              .Where(f => f.User.Id == userId)
+                              .Select(f => f.Media.Id)
+                              .ToListAsync()
+            );
+
+            // 3) Créer une requête LINQ pour récupérer les médias avec URL de téléchargement en base de données
+            var mediasWithUrlQuery = _context.Media
+                .Include(m => m.MediaType)
+                .Include(m => m.MediasGenres)
+                .Where(m => m.StreamingLink != null)
+                .Select(m => new MediaViewModel
+                {
+                    Media = m,
+                    IsFavorite = favoriteMediaIds.Contains(m.Id),  // Vérifier si le média est parmi les favoris de l'utilisateur   
+                }); ;
+
+            // 4) Footer List
+            // Récupérer le nombre total de médias dans la base de données
+            var totalMediasCount = await _context.Media.CountAsync();
+
+            // Récupérer le nombre total de médias avec URL de téléchargement dans la base de données
+            var totalMediasStreamingLinkCount = await _context.Media.CountAsync(m => m.StreamingLink != null);
+
+            // 5) Pagination
+            // Créer une liste paginée de médias avec URL de téléchargement
+            var paginatedMediasWithUrl = await PaginatedList<MediaViewModel>.CreateAsync(mediasWithUrlQuery, pageIndex, pageSize);
+
+            // 6) Créer le modèle de vue pour la vue partielle
+            var viewModel = new MediaViewModel
+            {
+                MediasStreamingLink = paginatedMediasWithUrl,  // Liste paginée des médias avec URL de téléchargement
+                TotalMediasCount = totalMediasCount,             // Nombre total de médias dans la base de données
+                TotalMediasWithStreamingLinkCount = totalMediasStreamingLinkCount  // Nombre total de médias avec URL de téléchargement dans la base de données
+            };
+
+            // 7) Renvoyer la vue partielle avec le modèle de vue
+            return PartialView("Partials/_MediasStreamingLink", viewModel);
+        }
+
+        // Partials Medias without Download Url
+        public async Task<IActionResult> GetMediasWaiting(int pageIndex = 1, int pageSize = DefaultPageSize)
+        {
+            // 1) Récupérer l'identifiant de l'utilisateur actuel
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // 2) Récupérer les identifiants des médias favoris de l'utilisateur et les stocker dans une HashSet
+            var favoriteMediaIds = new HashSet<int>(
+                await _context.MediaFavorite
+                              .Where(f => f.User.Id == userId)
+                              .Select(f => f.Media.Id)
+                              .ToListAsync()
+            );
+
+            // 3) Créer une requête pour récupérer les médias en attente (sans URL de téléchargement)
+            var mediasWaitingQuery = _context.Media
+                              .Include(m => m.MediaType)
+                              .Include(m => m.MediasGenres)
+                              .Where(m => m.StreamingLink == null)
+                              .Select(m => new MediaViewModel
+                              {
+                                  Media = m,
+                                  IsFavorite = favoriteMediaIds.Contains(m.Id),  // Vérifier si le média est parmi les favoris de l'utilisateur
+                              });
+
+            // 4) Footer List
+            // Récupérer le nombre total de médias dans la base de données
+            var totalMediasCount = await _context.Media.CountAsync();
+
+            // Récupérer le nombre total de médias en attente dans la base de données
+            var totalMediasWaitingCount = await _context.Media.CountAsync(m => m.StreamingLink == null);
+
+            // 5) Pagination
+            // Créer une liste paginée de médias en attente
+            var paginatedMediasWaiting = await PaginatedList<MediaViewModel>.CreateAsync(mediasWaitingQuery, pageIndex, pageSize);
+
+            // 6) Créer le modèle de vue pour la vue partielle
+            var viewModel = new MediaViewModel
+            {
+                MediasWaiting = paginatedMediasWaiting,  // Liste paginée des médias en attente
+                TotalMediasCount = totalMediasCount,     // Nombre total de médias dans la base de données
+                TotalMediasWaitingCount = totalMediasWaitingCount  // Nombre total de médias en attente dans la base de données
+            };
+
+            // 7) Renvoyer la vue partielle avec le modèle de vue
+            return PartialView("Partials/_MediasWaiting", viewModel);
         }
 
         // GET: Media/Details/5

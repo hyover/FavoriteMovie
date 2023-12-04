@@ -5,7 +5,7 @@ namespace FavoriteMovie.ViewsModels.Medias
     public class MediaViewModel
     {
         // Pagination
-        public PaginatedList<MediaViewModel>? MediasWithDownloadUrl { get; set; }
+        public PaginatedList<MediaViewModel>? MediasStreamingLink { get; set; }
         public PaginatedList<MediaViewModel>? MediasWaiting { get; set; }
 
         // Model Media
@@ -18,7 +18,7 @@ namespace FavoriteMovie.ViewsModels.Medias
         public int TotalMediasCount { get; set; }
 
         // Total de films avec DownloadUrl
-        public int TotalMediasWithDownloadUrlCount { get; set; }
+        public int TotalMediasWithStreamingLinkCount { get; set; }
 
         // Total de films en attente
         public int TotalMediasWaitingCount { get; set; } 
