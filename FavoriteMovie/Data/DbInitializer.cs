@@ -12,9 +12,6 @@ namespace FavoriteMovie.Data
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                // Appliquer les migrations
-                dbContext.Database.Migrate();
-
                 // Créer les rôles et l'utilisateur administrateur
                 await CreateRolesAndAdminUserAsync(scope.ServiceProvider);
 

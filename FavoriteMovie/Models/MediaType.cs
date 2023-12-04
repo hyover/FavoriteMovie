@@ -21,7 +21,7 @@ namespace FavoriteMovie.Models
         public DateTime UpdatedAt { get; set; }
 
         // FK
-        public ICollection<Media> Medias { get; set; }
+        public virtual ICollection<Media> Medias { get; set; }
 
         // Constructor for CreatedAt
         public MediaType()
