@@ -37,6 +37,11 @@ namespace FavoriteMovie.Controllers
          * --------------------------------------------------------------- */
         private const int DefaultPageSize = 8;
 
+
+        /* ---------------------------------------------------------------- 
+         * View Index of Medias
+         * ---------------------------------------------------------------- */
+
         // GET: Media
         public async Task<IActionResult> Index()
         {
