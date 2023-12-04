@@ -8,7 +8,7 @@ namespace FavoriteMovie.Models
         public int Id { get; set; }
 
         // Required
-        [Required(ErrorMessage = "S'il te plait entre un nom pour le média.")]
+        [Required(ErrorMessage = "S'il te plait entre un nom pour le genre.")]
         [StringLength(255, ErrorMessage = "Le nom doit avoir une longueur comprise entre {2} and {1}.", MinimumLength = 3)]
         public string Name { get; set; }
 

@@ -1,6 +1,9 @@
-﻿namespace FavoriteMovie.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FavoriteMovie.Models
 {
     public class MediaType
     {
+        
     }
 }
