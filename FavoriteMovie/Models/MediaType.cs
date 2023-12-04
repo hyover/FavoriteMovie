@@ -4,6 +4,35 @@ namespace FavoriteMovie.Models
 {
     public class MediaType
     {
-        
+        // PK
+        public int Id { get; set; }
+
+        // Required
+        [Required(ErrorMessage = "S'il te plait entre un nom pour le type.")]
+        [StringLength(255, ErrorMessage = "Le nom doit avoir une longueur comprise entre {2} and {1}.", MinimumLength = 3)]
+        public string Name { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime UpdatedAt { get; set; }
+
+        // FK
+        public ICollection<Media> Medias { get; set; }
+
+        // Constructor for CreatedAt
+        public MediaType()
+        {
+            CreatedAt = DateTime.Now;
+        }
+
+        // Function call before add or update an entity
+        public void BeforeSaveChanges()
+        {
+            UpdatedAt = DateTime.Now;
+        }
     }
 }
