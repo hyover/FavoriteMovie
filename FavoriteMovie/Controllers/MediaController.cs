@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FavoriteMovie.Data;
 using FavoriteMovie.Models;
@@ -66,7 +61,7 @@ namespace FavoriteMovie.Controllers
                               .ToListAsync()
             );
 
-            // 3) Créer une requête LINQ pour récupérer les médias avec URL de téléchargement en base de données
+            // 3) Créer une requête LINQ pour récupérer les médias avec URL de streaming en base de données
             var mediasWithUrlQuery = _context.Media
                 .Include(m => m.MediaType)
                 .Include(m => m.MediasGenres)
@@ -81,19 +76,19 @@ namespace FavoriteMovie.Controllers
             // Récupérer le nombre total de médias dans la base de données
             var totalMediasCount = await _context.Media.CountAsync();
 
-            // Récupérer le nombre total de médias avec URL de téléchargement dans la base de données
+            // Récupérer le nombre total de médias avec URL de streaming dans la base de données
             var totalMediasStreamingLinkCount = await _context.Media.CountAsync(m => m.StreamingLink != null);
 
             // 5) Pagination
-            // Créer une liste paginée de médias avec URL de téléchargement
+            // Créer une liste paginée de médias avec URL de streaming
             var paginatedMediasWithUrl = await PaginatedList<MediaViewModel>.CreateAsync(mediasWithUrlQuery, pageIndex, pageSize);
 
             // 6) Créer le modèle de vue pour la vue partielle
             var viewModel = new MediaViewModel
             {
-                MediasStreamingLink = paginatedMediasWithUrl,  // Liste paginée des médias avec URL de téléchargement
+                MediasStreamingLink = paginatedMediasWithUrl,  // Liste paginée des médias avec URL de streaming
                 TotalMediasCount = totalMediasCount,             // Nombre total de médias dans la base de données
-                TotalMediasWithStreamingLinkCount = totalMediasStreamingLinkCount  // Nombre total de médias avec URL de téléchargement dans la base de données
+                TotalMediasWithStreamingLinkCount = totalMediasStreamingLinkCount  // Nombre total de médias avec URL de streaming dans la base de données
             };
 
             // 7) Renvoyer la vue partielle avec le modèle de vue
@@ -114,7 +109,7 @@ namespace FavoriteMovie.Controllers
                               .ToListAsync()
             );
 
-            // 3) Créer une requête pour récupérer les médias en attente (sans URL de téléchargement)
+            // 3) Créer une requête pour récupérer les médias en attente (sans URL de streaming)
             var mediasWaitingQuery = _context.Media
                               .Include(m => m.MediaType)
                               .Include(m => m.MediasGenres)
@@ -148,22 +143,39 @@ namespace FavoriteMovie.Controllers
             return PartialView("Partials/_MediasWaiting", viewModel);
         }
 
-        // GET: Media/Details/5
+        /* ----------------------------------------------------------------
+         * View Details foreach Media
+         * ---------------------------------------------------------------- */
+
+        // GET: Medias/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            // 1) Vérifier si l'identifiant du média est null ou si le contexte des médias est null
             if (id == null || _context.Media == null)
             {
                 return NotFound();
             }
 
+            // 2) Récupérer le média avec ses relations (MediaGenres et MediaType) basé sur l'identifiant
             var media = await _context.Media
+                .Include(m => m.MediasGenres) // Inclure la relation avec MediaGenres
+                .Include(m => m.MediaType)   // Inclure la relation avec MediaType
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            //  3) Vérifier si le média existe 
             if (media == null)
             {
                 return NotFound();
             }
 
-            return View(media);
+            // 4) Créer le modèle de vue pour le média
+            var mediaViewModel = new MediaViewModel
+            {
+                Media = media,
+            };
+
+            // 5) Renvoyer la vue avec le modèle de vue contenant les détails du média
+            return View(mediaViewModel);
         }
 
         // GET: Media/Create
