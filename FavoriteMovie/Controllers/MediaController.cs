@@ -143,6 +143,31 @@ namespace FavoriteMovie.Controllers
             return PartialView("Partials/_MediasWaiting", viewModel);
         }
 
+        // Toggle Favorite star in list
+        [HttpPost]
+        public async Task<IActionResult> ToggleFavorite([FromBody] MediaViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var existingFavorite = await _context.MediaFavorite
+                                    .FirstOrDefaultAsync(f => f.Media.Id == model.Media.Id && f.User.Id == userId);
+
+            if (existingFavorite != null)
+            {
+                // Le film est déjà dans les favoris, le retirer
+                _context.MediaFavorite.Remove(existingFavorite);
+                await _context.SaveChangesAsync();
+                return Json(new { IsFavorite = false });
+            }
+            else
+            {
+                // Le film n'est pas dans les favoris, l'ajouter
+                var newFavorite = new MediaFavorite { Media = model.Media, User = model.Media.User };
+                _context.MediaFavorite.Add(newFavorite);
+                await _context.SaveChangesAsync();
+                return Json(new { IsFavorite = true });
+            }
+        }
+
         /* ----------------------------------------------------------------
          * View Details foreach Media
          * ---------------------------------------------------------------- */
