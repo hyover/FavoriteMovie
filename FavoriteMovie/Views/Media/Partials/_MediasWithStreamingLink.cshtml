@@ -1,0 +1,96 @@
+﻿@model FavoriteMovie.ViewsModels.MediaViewModel
+
+<!-- Section pour les films avec DownloadUrl -->
+<h2>Visionnable </h2>
+<span>(@Model.TotalMediasWithStreamingLinkCount/@Model.TotalMediasCount ajoutés)</span>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="sorted">
+                Type <i class="fa fa-sort fa-xs"</i>
+            </th>
+            <th class="sorted">
+                Nom <i class="fa fa-sort fa-xs"</i>
+            </th>
+            <th class="note-table sorted">
+                Genre(s) <i class="fa fa-sort fa-xs"</i>
+            </th>
+            <th class="addedBy-table sorted">
+                Ajouté par <i class="fa fa-sort fa-xs"</i>
+            </th>
+            <th class="sorted">
+                Favoris <i class="fa fa-sort fa-xs  "</i>
+            </th>
+
+            <th>
+                <!-- ... space ... -->
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.MediaWithStreamingLink)
+        {
+            <tr>
+                <td>
+
+                    @Html.DisplayFor(modelItem => item.Media.MediaType.Name)
+
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Media.Id">
+                        @Html.DisplayFor(modelItem => item.Media.Name)
+                    </a>
+                </td>
+                <td class="truncate">
+                    @foreach (var genre in item.Media.MediaGenres)
+                    {
+                        <span>@genre.Name</span>
+                    }
+                </td>
+                <td class="addedBy-table">
+                    @Html.DisplayFor(modelItem => item.Media.AddedBy)
+                </td>
+
+
+                <td>
+                    <button class="btn btn-sm toggle-favorite" data-media-id="@item.Media.Id" data-is-favorite="@(item.IsFavorite ? "true" : "false")">
+                        @if (item.IsFavorite)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star text-warning"></i>
+                        }
+                    </button>
+                </td>
+
+
+
+            </tr>
+        }
+    </tbody>
+</table>
+@if (Model.MediasStreamingLink.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (Model.MediasStreamingLink.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="javascript:loadMediasStreamingLink(@Model.MediasStreamingLink.PageIndex - 1)">Précédent</a>
+                </li>
+            }
+
+            @if (Model.MediasStreamingLink.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="javascript:loadMediasStreamingLink(@Model.MediasStreamingLink.PageIndex + 1)">Suivant</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
