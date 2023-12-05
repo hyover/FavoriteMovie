@@ -1,0 +1,114 @@
+﻿/* LOGO */
+
+.logo {
+    width: 60px;
+}
+
+/* Style de base pour les liens */
+a.nav-link {
+    transition: ease-in-out 0.2s;
+    color: #000; /* Couleur du texte par défaut */
+    text-decoration: none; /* Supprimer la décoration du texte par défaut */
+    display: inline-block; /* Pour que les liens aient une largeur fixe */
+    padding-bottom: 2px; /* Pour la barre en dessous du texte */
+}
+
+    /* Effets au survol */
+    a.nav-link:hover {
+        transform: scale(1.1); /* Zoom du texte au survol */
+    }
+
+/* Style de l'élément actif */
+.nav-item.active a.nav-link {
+    color: #007bff; /* Couleur du texte pour l'élément actif */
+    border-bottom: 2px solid #007bff; /* Style de la barre bleue */
+}
+
+.note-table {
+    max-width: 150px;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Movies Index */
+/* Defaults */
+
+.addedBy-table {
+    display: none;
+    min-width: 100px;
+}
+
+.burger-menu {
+    display: block;
+    cursor: pointer;
+}
+
+.navigation-option {
+    display: none; /* Caché par défaut */
+    position: absolute; /* Position relative au conteneur le plus proche */
+    background-color: rgba(255, 255, 255, 0.9); /* Fond semi-transparent */
+    z-index: 1000; /* Assurez-vous qu'il est au-dessus des autres éléments */
+    transition: all 0.3s ease;
+    /* Ajouter d'autres styles si nécessaire (comme box-shadow, padding, etc.) */
+}
+
+/* Hide addedBy for mobile */
+@media only screen and (min-width: 600px) {
+    .addedBy-table {
+        display: table-cell;
+    }
+}
+
+/* BUTTONS */
+/* PLAY BUTTON */
+.glightbox_video {
+    transform: translate(-50%, -50%);
+}
+
+.outer_circle {
+    stroke-width: 3;
+    stroke-dasharray: 410;
+    stroke-dashoffset: 0;
+    stroke-linecap: square;
+    transition: all .4s ease-out;
+}
+
+.glightbox_video:hover .outer_circle {
+    stroke-dashoffset: 410;
+    transition: stroke .7s .4s ease-out, stroke-dashoffset .4s ease-out
+}
+
+.glightbox_video:hover
+.inner-circle {
+    fill: #bf242883;
+    transition: fill .4s .3s ease-out;
+}
+
+.glightbox_video:hover
+.play {
+    fill: #BF2428;
+    transition: fill .4s .3s ease-out;
+}
+
+/* PLAY BUTTON */
+.allocine-logo {
+    width: 100px;
+}
+
+.allocine-logo-block:hover {
+    opacity: 0.5;
+}
+
+/* Sorted table */
+.sorted:hover {
+    opacity: 0.6;
+}
+
+th {
+    cursor: pointer;
+}
