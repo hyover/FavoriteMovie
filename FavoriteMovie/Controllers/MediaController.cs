@@ -178,66 +178,252 @@ namespace FavoriteMovie.Controllers
             return View(mediaViewModel);
         }
 
-        // GET: Media/Create
-        public IActionResult Create()
+        /* ----------------------------------------------------------------
+         * View Create an Media
+         * ---------------------------------------------------------------- */
+
+        // GET: Medias/Create
+        public async Task<IActionResult> Create()
         {
+            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
+
+            // 2) Stocker les données dans la ViewBag
+            ViewBag.AllMediasTypes = allMediaTypes;
+            ViewBag.AllMediasGenres = allMediaGenres;
+
+            // 3) Retourner la vue
             return View();
         }
 
-        // POST: Media/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+        // POST: Medias/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Note,CreatedAt,UpdatedAt,AllocineDescription,AllocineLink,StreamingLink")] Media media)
+        public async Task<IActionResult> Create(MediaViewModel mediaViewModel)
         {
-            if (ModelState.IsValid)
+            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
+
+            // 2) Vérifier si le modèle est valide
+            if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    System.Diagnostics.Debug.WriteLine("Error: " + error.ErrorMessage);
+                }
+
+                // Stocker les données dans la ViewBag
+                ViewBag.AllMediasTypes = allMediaTypes;
+                ViewBag.AllMediasGenres = allMediaGenres;
+
+                return View(mediaViewModel);
+            }
+            else
+            {
+                //System.Diagnostics.Debug.WriteLine("Le ModelState est valide");
+
+                // Créez une nouvelle instance de Media en utilisant les propriétés de mediasViewModel
+                var media = new Media
+                {
+                    Name = mediaViewModel.Media.Name,
+                    AllocineDescription = mediaViewModel.Media.AllocineDescription,
+                    Note = mediaViewModel.Media.Note,
+                    AllocineLink = mediaViewModel.Media.AllocineDescription,
+                    User = mediaViewModel.Media.User,
+                    StreamingLink = mediaViewModel.Media.StreamingLink,
+
+                    MediaType = await _context.MediaType.FindAsync(mediaViewModel.Media.MediaType.Id),
+
+                    MediasGenres = await _context.MediaGenre
+                        .Where(g => mediaViewModel.SelectedMediaGenre
+                                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(int.Parse)
+                                        .Contains(g.Id))
+                                        .ToListAsync(),
+
+                };
+
+                //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
+
+                // 3) Mettre à jour la base de données
+                // Ajout du média à la base de données
                 _context.Add(media);
+
+                // Enregistrement des modifications dans la base de données de manière asynchrone
                 await _context.SaveChangesAsync();
+
+                // 4) Redirection vers l'action "Index" une fois l'ajout effectué
                 return RedirectToAction(nameof(Index));
             }
-            return View(media);
         }
 
-        // GET: Media/Edit/5
+        /* ----------------------------------------------------------------
+        * View Edit an Media
+        * ---------------------------------------------------------------- */
+
+        // GET: Medias/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
+
+            // 2) Vérifier si l'identifiant est null ou si le contexte des médias est null
             if (id == null || _context.Media == null)
             {
                 return NotFound();
             }
 
-            var media = await _context.Media.FindAsync(id);
+            // 3) Récupérer le média avec ses relations (MediaGenres et MediaType) basé sur l'identifiant
+            var media = await _context.Media
+                  .Include(m => m.MediasGenres)
+                  .Include(m => m.MediaType)
+                  .FirstOrDefaultAsync(m => m.Id == id);
+
+            // 4) Vérifier si le média existe
             if (media == null)
             {
                 return NotFound();
             }
-            return View(media);
+
+            // 5) Vérifier si l'utilisateur connecté est l'auteur du média ou un admin
+            var currentUserName = User.Identity;
+
+            if (media.User != currentUserName && !User.IsInRole("Admin"))
+            {
+                return Forbid(); // Refuser l'accès si l'utilisateur n'est pas l'auteur ou un admin
+            }
+
+            // 6) Créer le modèle de vue pour le média
+            var mediaViewModel = new MediaViewModel
+            {
+                Media = new Media
+                {
+                    Id = media.Id,
+                    Name = media.Name,
+                    MediaType = media.MediaType,
+                    MediasGenres = media.MediasGenres,
+                    Note = media.Note,
+                    AllocineDescription = media.AllocineDescription,
+                    AllocineLink = media.AllocineLink,
+                    StreamingLink = media.StreamingLink,
+                    User = media.User,
+                    CreatedAt = media.CreatedAt,
+                    UpdatedAt = media.UpdatedAt,
+                },
+                SelectedMediaGenre = string.Join(",", media.MediasGenres.Select(g => g.Id))
+            };
+
+
+            // 7) Stocker les données dans la ViewBag
+            ViewBag.AllMediasTypes = allMediaTypes;
+            ViewBag.AllMediasGenres = allMediaGenres;
+
+            // 8) Renvoyer la vue avec le modèle de vue contenant les détails du média
+            return View(mediaViewModel);
         }
 
-        // POST: Media/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Medias/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Note,CreatedAt,UpdatedAt,AllocineDescription,AllocineLink,StreamingLink")] Media media)
+        public async Task<IActionResult> Edit(int id, MediaViewModel mediasViewModel)
         {
-            if (id != media.Id)
+            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
+
+            // 2) Vérifier si l'identifiant est différent de l'identifiant du média dans le modèle
+            if (id != mediasViewModel.Media.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // 3) Récupérer le média avec ses relations (MediaGenres et MediaType) basé sur l'identifiant
+            var mediaToUpdate = await _context.Media
+                .Include(m => m.MediasGenres) // Inclure la relation avec MediaGenres
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            // 4) Vérifier si le média existe
+            if (mediaToUpdate == null || (mediaToUpdate.User != User.Identity && !User.IsInRole("Admin")))
             {
+                return Forbid(); // Refuser l'accès si l'utilisateur n'est pas l'auteur ou un admin
+            }
+
+            // 5) Vérifier si le modèle est valide
+            if (!ModelState.IsValid)
+            {
+                // Gérez les erreurs de validation
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    System.Diagnostics.Debug.WriteLine("Error: " + error.ErrorMessage);
+                }
+
+                // Stocker les données dans la ViewBag
+                ViewBag.AllMediasTypes = allMediaTypes;
+                ViewBag.AllMediasGenres = allMediaGenres;
+
+                return View(mediasViewModel);
+            }
+            else
+            {
+                mediaToUpdate.Name = mediasViewModel.Media.Name;
+                mediaToUpdate.AllocineDescription = mediasViewModel.Media.AllocineDescription;
+                mediaToUpdate.Note = mediasViewModel.Media.Note;
+                mediaToUpdate.AllocineLink = mediasViewModel.Media.AllocineLink;
+                mediaToUpdate.StreamingLink = mediasViewModel.Media.StreamingLink;
+
+                // Assurez-vous que MediaGenres est initialisé
+                if (mediaToUpdate.MediasGenres == null)
+                {
+                    mediaToUpdate.MediasGenres = new List<MediaGenre>();
+                }
+
+                // MediaType
+                mediaToUpdate.MediaType = await _context.MediaType.FindAsync(mediasViewModel.Media.MediaType.Id);
+
+
+                // MediaGenres
+                var selectedGenres = mediasViewModel.SelectedMediaGenre
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToList();
+
+                var existingGenres = mediaToUpdate.MediasGenres
+                    .Select(g => g.Id)
+                    .ToList();
+
+                // Supprimer les genres qui ne sont plus sélectionnés
+                var genresToRemove = existingGenres.Except(selectedGenres).ToList();
+                foreach (var genreId in genresToRemove)
+                {
+                    var genreToRemove = mediaToUpdate.MediasGenres.FirstOrDefault(g => g.Id == genreId);
+                    if (genreToRemove != null)
+                    {
+                        mediaToUpdate.MediasGenres.Remove(genreToRemove);
+                    }
+                }
+
+                // Ajouter les nouveaux genres sélectionnés
+                var genresToAdd = selectedGenres.Except(existingGenres).ToList();
+
+                foreach (var genreId in genresToAdd)
+                {
+                    var genreToAdd = await _context.MediaGenre.FindAsync(genreId);
+
+                    if (genreToAdd != null)
+                    {
+                        mediaToUpdate.MediasGenres.Add(genreToAdd);
+                    }
+                }
+
+                // Enregistrez les modifications dans la base de données
                 try
                 {
-                    _context.Update(media);
+                    _context.Update(mediaToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MediaExists(media.Id))
+                    if (!MediaExists(mediasViewModel.Media.Id))
                     {
                         return NotFound();
                     }
@@ -246,9 +432,10 @@ namespace FavoriteMovie.Controllers
                         throw;
                     }
                 }
+
+                // Redirigez vers l'index après la mise à jour réussie
                 return RedirectToAction(nameof(Index));
             }
-            return View(media);
         }
 
         // GET: Media/Delete/5
