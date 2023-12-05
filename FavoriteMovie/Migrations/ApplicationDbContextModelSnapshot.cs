@@ -67,7 +67,7 @@ namespace FavoriteMovie.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Media");
+                    b.ToTable("Media", (string)null);
                 });
 
             modelBuilder.Entity("FavoriteMovie.Models.MediaFavorite", b =>
@@ -90,7 +90,7 @@ namespace FavoriteMovie.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MediaFavorite");
+                    b.ToTable("MediaFavorite", (string)null);
                 });
 
             modelBuilder.Entity("FavoriteMovie.Models.MediaGenre", b =>
@@ -114,7 +114,7 @@ namespace FavoriteMovie.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MediaGenre");
+                    b.ToTable("MediaGenre", (string)null);
                 });
 
             modelBuilder.Entity("FavoriteMovie.Models.MediaType", b =>
@@ -138,7 +138,7 @@ namespace FavoriteMovie.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MediaType");
+                    b.ToTable("MediaType", (string)null);
                 });
 
             modelBuilder.Entity("MediaMediaGenre", b =>
@@ -153,7 +153,7 @@ namespace FavoriteMovie.Migrations
 
                     b.HasIndex("MediasId");
 
-                    b.ToTable("MediaMediaGenre");
+                    b.ToTable("MediaMediaGenre", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

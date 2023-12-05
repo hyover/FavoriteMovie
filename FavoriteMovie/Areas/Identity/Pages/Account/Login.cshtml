@@ -1,0 +1,113 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2>Formulaire de connexion</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email" class="form-label">Email / Pseudo</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3" style="display: flex; align-items: center;">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <div style="margin-left: -45px;">
+                        <!-- Ajustez la marge selon vos besoins -->
+                        <button type="button" id="togglePassword" class="btn btn-outline-">
+                            <i id="eyeIcon" class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <label asp-for="Input.Password" class="form-label" style="flex: 1; margin-left: 10px;">Mot de passe</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="checkbox mb-3">
+                    <label asp-for="Input.RememberMe" class="form-label">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        Se souvenir de moi
+                    </label>
+                </div>
+                <div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Se connecter</button>
+                </div>
+                <div class="my-2">
+                    <!--<p>
+                        <a id="forgot-password" asp-page="./ForgotPassword">Mot de passe oublié ?</a>
+                    </p>-->
+                    <p>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">S'inscrire</a>
+                    </p>
+                    <!--<p>
+                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Renvoyer le mail de confirmation</a>
+                    </p>-->
+                </div>
+            </form>
+        </section>
+    </div>
+    <!--
+        <div class="col-md-6 col-md-offset-2">
+        <section>
+            <h3>Use another service to log in.</h3>
+            <hr />
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                            about setting up this ASP.NET application to support logging in via external services</a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+    -->
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var togglePasswordButton = document.getElementById("togglePassword");
+            var passwordField = document.getElementById("Input_Password");
+            var eyeIcon = document.getElementById("eyeIcon");
+
+            togglePasswordButton.addEventListener("click", function () {
+                var passwordFieldType = passwordField.type;
+
+                if (passwordFieldType === "password") {
+                    passwordField.type = "text";
+                    eyeIcon.classList.remove("bi-eye");
+                    eyeIcon.classList.add("bi-eye-slash");
+                } else {
+                    passwordField.type = "password";
+                    eyeIcon.classList.remove("bi-eye-slash");
+                    eyeIcon.classList.add("bi-eye");
+                }
+            });
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,4 @@
-﻿@model FavoriteMovie.ViewsModels.MediaViewModel
+﻿@model FavoriteMovie.ViewsModels.Medias.MediaViewModel
 
 <!-- Section pour les films en attente -->
 <h2>En Attente</h2>
@@ -30,13 +30,13 @@
                     </a>
                 </td>
                 <td class="truncate">
-                    @foreach (var genre in item.Media.MediaGenres)
+                    @foreach (var genre in item.Media.MediasGenres)
                     {
                         <span>@genre.Name</span>
                     }
                 </td>
                 <td class="addedBy-table">
-                    @Html.DisplayFor(modelItem => item.Media.AddedBy)
+                    @Html.DisplayFor(modelItem => item.Media.User.UserName)
                 </td>
 
 

@@ -16,7 +16,7 @@ namespace FavoriteMovie.Controllers
         public IActionResult Index()
         {
             _logger.LogInformation("Home page visited at {Time}", DateTime.UtcNow);
-            return RedirectToAction("Index", "Medias");
+            return RedirectToAction("Index", "Media");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
