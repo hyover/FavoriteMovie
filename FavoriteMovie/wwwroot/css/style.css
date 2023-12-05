@@ -109,6 +109,6 @@ a.nav-link {
     opacity: 0.6;
 }
 
-th {
+th.sorted {
     cursor: pointer;
 }
