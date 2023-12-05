@@ -438,40 +438,64 @@ namespace FavoriteMovie.Controllers
             }
         }
 
-        // GET: Media/Delete/5
+        /* ----------------------------------------------------------------
+         * View Delete an Media
+         * ---------------------------------------------------------------- */
+
+        // GET: Medias/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
+            // 1) Vérifier si l'identifiant est null ou si le contexte des médias est null
             if (id == null || _context.Media == null)
             {
                 return NotFound();
             }
 
-            var media = await _context.Media
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // 2) Récupérer le média avec ses relations (MediaGenres et MediaType) basé sur l'identifiant
+            var media = await _context.Media.FindAsync(id);
             if (media == null)
             {
                 return NotFound();
             }
 
-            return View(media);
+            // 3) Vérifier si l'utilisateur connecté est l'auteur du média ou un admin
+            var currentUserName = User.Identity; // Récupérer le nom de l'utilisateur connecté
+
+            if (media.User != currentUserName && !User.IsInRole("Admin"))
+            {
+                return Forbid(); // Refuser l'accès si l'utilisateur n'est pas l'auteur ou un admin
+            }
+
+            // 4) Créer le modèle de vue pour le média
+            var mediaViewModel = new MediaViewModel
+            {
+                Media = media
+            };
+
+            // 5) Renvoyer la vue avec le modèle de vue contenant les détails du média
+            return View(mediaViewModel);
         }
 
-        // POST: Media/Delete/5
+        // POST: Medias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (_context.Media == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Media'  is null.");
-            }
+            // 1) Vérifier si l'identifiant est null ou si le contexte des médias est null
             var media = await _context.Media.FindAsync(id);
+
+            if (media == null || (media.User != User.Identity && !User.IsInRole("Admin")))
+            {
+                return Forbid(); // Refuser l'accès si l'utilisateur n'est pas l'auteur ou un admin
+            }
+
+            // 2) Supprimer le média de la base de données
             if (media != null)
             {
                 _context.Media.Remove(media);
+                await _context.SaveChangesAsync();
             }
-            
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
