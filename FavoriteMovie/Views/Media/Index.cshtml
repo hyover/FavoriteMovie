@@ -1,71 +1,35 @@
-﻿@model IEnumerable<FavoriteMovie.Models.Media>
+﻿@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery antiforgery
+
+@functions {
+    public string GetAntiforgeryToken() => antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+@model FavoriteMovie.ViewsModels.Medias.MediaViewModel
+
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Medias";
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create"><button class="btn btn-primary">Ajouter un titre</button></a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AllocineDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AllocineLink)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StreamingLink)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AllocineDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AllocineLink)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StreamingLink)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<!-- Container for films with StreamingLink -->
+<div id="mediasWithStreamingLinkContainer">
+    <!-- Content loaded via AJAX -->
+</div>
+
+<!-- Container for films waiting -->
+<div id="mediasWaitingContainer">
+    <!-- Content loaded via AJAX -->
+</div>
+
+
+<script>
+    const antiforgeryToken = '@GetAntiforgeryToken()';
+</script>
+
