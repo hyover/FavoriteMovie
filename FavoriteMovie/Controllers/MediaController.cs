@@ -42,13 +42,11 @@ namespace FavoriteMovie.Controllers
         // GET: Media
         public async Task<IActionResult> Index()
         {
-              return _context.Media != null ? 
-                          View(await _context.Media.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Media'  is null.");
+            return View();
         }
 
         // Partials Medias with Download Url
-        public async Task<IActionResult> GetMediasWithStreamingLink(int pageIndex = 1, int pageSize = DefaultPageSize, string sortField = "MediaType", string sortOrder = "asc")
+        public async Task<IActionResult> GetMediasStreamingLink(int pageIndex = 1, int pageSize = DefaultPageSize, string sortField = "MediaType", string sortOrder = "asc")
         {
             // 1) Récupérer l'identifiant de l'utilisateur actuel
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

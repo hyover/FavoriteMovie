@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (blocMediasWithStreamingLink && blocMediasWaiting) {
         // Pagination Films Disponibles
         function loadMediasWithStreamingLink(pageIndex) {
-            fetch(`/Media/GetMediasWithStreamingLink?pageIndex=${pageIndex}`)
+            fetch(`/Media/GetMediasStreamingLink?pageIndex=${pageIndex}`)
                 .then(response => response.text())
                 .then(html => {
                     blocMediasWithStreamingLink.innerHTML = html;
