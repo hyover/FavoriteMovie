@@ -1,15 +1,14 @@
-﻿using FavoriteMovie.Models;
+﻿using FavoriteMovie.Helpers;
+using FavoriteMovie.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace FavoriteMovie.ViewsModels.Medias
+namespace FavoriteMovie.ViewsModels.Media
 {
     public class MediaViewModel
     {
         // Pagination
         public PaginatedList<MediaViewModel>? MediasStreamingLink { get; set; }
         public PaginatedList<MediaViewModel>? MediasWaiting { get; set; }
-
-        // Model Media
-        public Media Media { get; set; }
 
         // Media Favorite
         public bool IsFavorite { get; set; }
@@ -21,9 +20,12 @@ namespace FavoriteMovie.ViewsModels.Medias
         public int TotalMediasWithStreamingLinkCount { get; set; }
 
         // Total de films en attente
-        public int TotalMediasWaitingCount { get; set; } 
-
-        // Medias Genre selectionnés dans la liste déroulante
+        public int TotalMediasWaitingCount { get; set; }
+        
+        // ID Media Type selectionné dans la liste déroulante
+        public string SelectedMediaType { get; set; }
+        // ID Medias Genre selectionnés dans la liste déroulante
         public string SelectedMediaGenre { get; set; }
+
     }
 }

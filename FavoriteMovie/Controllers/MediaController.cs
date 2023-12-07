@@ -5,6 +5,7 @@ using FavoriteMovie.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using FavoriteMovie.ViewsModels.Medias;
+using Microsoft.AspNetCore.Identity;
 
 namespace FavoriteMovie.Controllers
 {
@@ -12,6 +13,7 @@ namespace FavoriteMovie.Controllers
     public class MediaController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public MediaController(ApplicationDbContext context)
         {
@@ -201,85 +203,102 @@ namespace FavoriteMovie.Controllers
             return View(mediaViewModel);
         }
 
-        /* ----------------------------------------------------------------
-         * View Create an Media
-         * ---------------------------------------------------------------- */
+            /* ----------------------------------------------------------------
+             * View Create an Media
+             * ---------------------------------------------------------------- */
 
-        // GET: Medias/Create
-        public async Task<IActionResult> Create()
-        {
-            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
-            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
-
-            // 2) Stocker les données dans la ViewBag
-            ViewBag.AllMediasTypes = allMediaTypes;
-            ViewBag.AllMediasGenres = allMediaGenres;
-
-            // 3) Retourner la vue
-            return View();
-        }
-
-
-        // POST: Medias/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(MediaViewModel mediaViewModel)
-        {
-            // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
-            var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
-
-            // 2) Vérifier si le modèle est valide
-            if (!ModelState.IsValid)
+            // GET: Medias/Create
+            public async Task<IActionResult> Create()
             {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    System.Diagnostics.Debug.WriteLine("Error: " + error.ErrorMessage);
-                }
+                // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+                var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
 
-                // Stocker les données dans la ViewBag
+                // 2) Stocker les données dans la ViewBag
                 ViewBag.AllMediasTypes = allMediaTypes;
                 ViewBag.AllMediasGenres = allMediaGenres;
 
-                return View(mediaViewModel);
+                // 3) Retourner la vue
+                return View();
             }
-            else
+
+
+            // POST: Medias/Create
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Create(MediaViewModel mediaViewModel)
             {
-                //System.Diagnostics.Debug.WriteLine("Le ModelState est valide");
+                // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
+                var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
 
-                // Créez une nouvelle instance de Media en utilisant les propriétés de mediasViewModel
-                var media = new Media
+                // 2) Vérifier si le modèle est valide
+                if (!ModelState.IsValid)
                 {
-                    Name = mediaViewModel.Media.Name,
-                    AllocineDescription = mediaViewModel.Media.AllocineDescription,
-                    Note = mediaViewModel.Media.Note,
-                    AllocineLink = mediaViewModel.Media.AllocineDescription,
-                    User = mediaViewModel.Media.User,
-                    StreamingLink = mediaViewModel.Media.StreamingLink,
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error: " + error.ErrorMessage);
+                    }
 
-                    MediaType = await _context.MediaType.FindAsync(mediaViewModel.Media.MediaType.Id),
+                    // Stocker les données dans la ViewBag
+                    ViewBag.AllMediasTypes = allMediaTypes;
+                    ViewBag.AllMediasGenres = allMediaGenres;
 
-                    MediasGenres = await _context.MediaGenre
-                        .Where(g => mediaViewModel.SelectedMediaGenre
-                                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                        .Select(int.Parse)
-                                        .Contains(g.Id))
-                                        .ToListAsync(),
+                    return View(mediaViewModel);    
+                }
+                else
+                {
+                    //System.Diagnostics.Debug.WriteLine("Le ModelState est valide");
+                    
 
-                };
+                    // Créez une nouvelle instance de Media en utilisant les propriétés de mediasViewModel
+                    var mediaView = new MediaViewModel
+                    {
+                        SelectedMediaGenre = mediaViewModel.SelectedMediaGenre,
+                        SelectedMediaType = mediaViewModel.SelectedMediaType,
 
-                //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
+                        Media = new Media
+                        {
+                            Name = mediaViewModel.Media.Name,
+                            AllocineDescription = mediaViewModel.Media.AllocineDescription,
+                            Note = mediaViewModel.Media.Note,
+                            AllocineLink = mediaViewModel.Media.AllocineDescription,
+                            User = mediaViewModel.Media.User,
+                            StreamingLink = mediaViewModel.Media.StreamingLink,
+                            MediaType = mediaViewModel.Media.MediaType,
 
-                // 3) Mettre à jour la base de données
-                // Ajout du média à la base de données
-                _context.Add(media);
+                            MediasGenres = await _context.MediaGenre
+                            .Where(g => mediaViewModel.SelectedMediaGenre
+                                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(int.Parse)
+                                            .Contains(g.Id))
+                                            .ToListAsync(),
+                        },
+                        
 
-                // Enregistrement des modifications dans la base de données de manière asynchrone
-                await _context.SaveChangesAsync();
 
-                // 4) Redirection vers l'action "Index" une fois l'ajout effectué
-                return RedirectToAction(nameof(Index));
+                        
+                       
+                    };
+                    System.Diagnostics.Debug.WriteLine(mediaView.Media.User);
+                    System.Diagnostics.Debug.WriteLine(mediaView.Media.MediaType);
+
+                    // Mettre à jour la date de mise à jour
+                    mediaView.Media.BeforeSaveChanges();
+
+
+                    //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
+
+                    // 3) Mettre à jour la base de données
+                    // Ajout du média à la base de données
+                    _context.Add(mediaView);
+
+
+                    // Enregistrement des modifications dans la base de données de manière asynchrone
+                    await _context.SaveChangesAsync();
+
+                    // 4) Redirection vers l'action "Index" une fois l'ajout effectué
+                    return RedirectToAction(nameof(Index));
+                }
             }
-        }
 
         /* ----------------------------------------------------------------
         * View Edit an Media

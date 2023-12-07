@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FavoriteMovie.ViewsModels.Medias
+namespace FavoriteMovie.Helpers
 {
     public class PaginatedList<T> : List<T>
     {
