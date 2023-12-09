@@ -4,8 +4,10 @@ using FavoriteMovie.Data;
 using FavoriteMovie.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using FavoriteMovie.ViewsModels.Medias;
+using FavoriteMovie.ViewsModels.Media;
 using Microsoft.AspNetCore.Identity;
+using FavoriteMovie.Helpers;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FavoriteMovie.Controllers
 {
@@ -23,7 +25,7 @@ namespace FavoriteMovie.Controllers
         /*----------------------------------------------------------------
          * Data
          * --------------------------------------------------------------- */
-        private async Task<(List<Models.MediaType> allMediaTypes, List<Models.MediaGenre> allMediaGenres)> GetMediaTypesAndGenresAsync()
+        private async Task<(ICollection<Models.MediaType> allMediaTypes, ICollection<Models.MediaGenre> allMediaGenres)> GetMediaTypesAndGenresAsync()
         {
             var allMediaTypes = await _context.MediaType.ToListAsync();
             var allMediaGenres = await _context.MediaGenre.ToListAsync();
@@ -66,7 +68,7 @@ namespace FavoriteMovie.Controllers
                 .Include(m => m.MediaType)
                 .Include(m => m.MediasGenres)
                 .Where(m => m.StreamingLink != null)
-                .Select(m => new MediaViewModel
+                .Select(m => new IndexMediaViewModel
                 {
                     Media = m,
                     IsFavorite = favoriteMediaIds.Contains(m.Id),  // Vérifier si le média est parmi les favoris de l'utilisateur   
@@ -81,10 +83,10 @@ namespace FavoriteMovie.Controllers
 
             // 5) Pagination
             // Créer une liste paginée de médias avec URL de streaming
-            var paginatedMediasWithUrl = await PaginatedList<MediaViewModel>.CreateAsync(mediasWithUrlQuery, pageIndex, pageSize);
+            var paginatedMediasWithUrl = await PaginatedList<IndexMediaViewModel>.CreateAsync(mediasWithUrlQuery, pageIndex, pageSize);
 
             // 6) Créer le modèle de vue pour la vue partielle
-            var viewModel = new MediaViewModel
+            var viewModel = new IndexMediaViewModel
             {
                 MediasStreamingLink = paginatedMediasWithUrl,  // Liste paginée des médias avec URL de streaming
                 TotalMediasCount = totalMediasCount,             // Nombre total de médias dans la base de données
@@ -114,7 +116,7 @@ namespace FavoriteMovie.Controllers
                               .Include(m => m.MediaType)
                               .Include(m => m.MediasGenres)
                               .Where(m => m.StreamingLink == null)
-                              .Select(m => new MediaViewModel
+                              .Select(m => new IndexMediaViewModel
                               {
                                   Media = m,
                                   IsFavorite = favoriteMediaIds.Contains(m.Id),  // Vérifier si le média est parmi les favoris de l'utilisateur
@@ -129,10 +131,10 @@ namespace FavoriteMovie.Controllers
 
             // 5) Pagination
             // Créer une liste paginée de médias en attente
-            var paginatedMediasWaiting = await PaginatedList<MediaViewModel>.CreateAsync(mediasWaitingQuery, pageIndex, pageSize);
+            var paginatedMediasWaiting = await PaginatedList<IndexMediaViewModel>.CreateAsync(mediasWaitingQuery, pageIndex, pageSize);
 
             // 6) Créer le modèle de vue pour la vue partielle
-            var viewModel = new MediaViewModel
+            var viewModel = new IndexMediaViewModel
             {
                 MediasWaiting = paginatedMediasWaiting,  // Liste paginée des médias en attente
                 TotalMediasCount = totalMediasCount,     // Nombre total de médias dans la base de données
@@ -145,7 +147,7 @@ namespace FavoriteMovie.Controllers
 
         // Toggle Favorite star in list
         [HttpPost]
-        public async Task<IActionResult> ToggleFavorite([FromBody] MediaViewModel model)
+        public async Task<IActionResult> ToggleFavorite([FromBody] IndexMediaViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var existingFavorite = await _context.MediaFavorite
@@ -194,7 +196,7 @@ namespace FavoriteMovie.Controllers
             }
 
             // 4) Créer le modèle de vue pour le média
-            var mediaViewModel = new MediaViewModel
+            var mediaViewModel = new DetailsMediaViewModel
             {
                 Media = media,
             };
@@ -225,7 +227,7 @@ namespace FavoriteMovie.Controllers
             // POST: Medias/Create
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create(MediaViewModel mediaViewModel)
+            public async Task<IActionResult> Create(CreateMediaViewModel createMediaViewModel)
             {
                 // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
                 var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
@@ -242,7 +244,7 @@ namespace FavoriteMovie.Controllers
                     ViewBag.AllMediasTypes = allMediaTypes;
                     ViewBag.AllMediasGenres = allMediaGenres;
 
-                    return View(mediaViewModel);    
+                    return View(createMediaViewModel);    
                 }
                 else
                 {
@@ -250,46 +252,29 @@ namespace FavoriteMovie.Controllers
                     
 
                     // Créez une nouvelle instance de Media en utilisant les propriétés de mediasViewModel
-                    var mediaView = new MediaViewModel
-                    {
-                        SelectedMediaGenre = mediaViewModel.SelectedMediaGenre,
-                        SelectedMediaType = mediaViewModel.SelectedMediaType,
-
-                        Media = new Media
-                        {
-                            Name = mediaViewModel.Media.Name,
-                            AllocineDescription = mediaViewModel.Media.AllocineDescription,
-                            Note = mediaViewModel.Media.Note,
-                            AllocineLink = mediaViewModel.Media.AllocineDescription,
-                            User = mediaViewModel.Media.User,
-                            StreamingLink = mediaViewModel.Media.StreamingLink,
-                            MediaType = mediaViewModel.Media.MediaType,
-
-                            MediasGenres = await _context.MediaGenre
-                            .Where(g => mediaViewModel.SelectedMediaGenre
-                                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                            .Select(int.Parse)
-                                            .Contains(g.Id))
-                                            .ToListAsync(),
-                        },
-                        
-
-
-                        
-                       
+                    var media= new Media
+                    {                  
+                        Name = createMediaViewModel.Name,
+                        AllocineDescription = createMediaViewModel.AllocineDescription,
+                        Note = createMediaViewModel.Note,
+                        AllocineLink = createMediaViewModel.AllocineDescription,
+                        User = createMediaViewModel.User,
+                        StreamingLink = createMediaViewModel.StreamingLink,
+                        MediaType = createMediaViewModel.MediaType,
+                        MediasGenres = createMediaViewModel.MediasGenres
                     };
-                    System.Diagnostics.Debug.WriteLine(mediaView.Media.User);
-                    System.Diagnostics.Debug.WriteLine(mediaView.Media.MediaType);
+                    System.Diagnostics.Debug.WriteLine(media.User);
+                    System.Diagnostics.Debug.WriteLine(media.MediaType);
 
                     // Mettre à jour la date de mise à jour
-                    mediaView.Media.BeforeSaveChanges();
+                    media.BeforeSaveChanges();
 
 
                     //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
 
                     // 3) Mettre à jour la base de données
                     // Ajout du média à la base de données
-                    _context.Add(mediaView);
+                    _context.Add(media);
 
 
                     // Enregistrement des modifications dans la base de données de manière asynchrone
@@ -337,7 +322,7 @@ namespace FavoriteMovie.Controllers
             }
 
             // 6) Créer le modèle de vue pour le média
-            var mediaViewModel = new MediaViewModel
+            var editMediaViewModel = new EditMediaViewModel
             {
                 Media = new Media
                 {
@@ -353,28 +338,32 @@ namespace FavoriteMovie.Controllers
                     CreatedAt = media.CreatedAt,
                     UpdatedAt = media.UpdatedAt,
                 },
-                SelectedMediaGenre = string.Join(",", media.MediasGenres.Select(g => g.Id))
+                SelectedMediaType = media.MediaType?.Id.ToString(),
+                SelectedMediaGenre = string.Join(",", media.MediasGenres.Select(g => g.Id)),
+                AllMediasTypes = allMediaTypes
+                    .Select(mt => new SelectListItem { Value = mt.Id.ToString(), Text = mt.Name })
+                    .ToList(),
+                AllMediasGenres = allMediaGenres
+                    .Select(mg => new SelectListItem { Value = mg.Id.ToString(), Text = mg.Name })
+                    .ToList()
+                    //SelectedMediaGenre will be populated in your view
             };
 
-
-            // 7) Stocker les données dans la ViewBag
-            ViewBag.AllMediasTypes = allMediaTypes;
-            ViewBag.AllMediasGenres = allMediaGenres;
-
-            // 8) Renvoyer la vue avec le modèle de vue contenant les détails du média
-            return View(mediaViewModel);
+            // 7) Renvoyer la vue avec le modèle de vue contenant les détails du média
+            return View(editMediaViewModel);
         }
+
 
         // POST: Medias/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, MediaViewModel mediasViewModel)
+        public async Task<IActionResult> Edit(int id, EditMediaViewModel editMediaViewModel)
         {
             // 1) Initialiser les données nécessaires depuis DbContext via GetMediaTypesAndGenresAsync
             var (allMediaTypes, allMediaGenres) = await GetMediaTypesAndGenresAsync();
 
             // 2) Vérifier si l'identifiant est différent de l'identifiant du média dans le modèle
-            if (id != mediasViewModel.Media.Id)
+            if (id != editMediaViewModel.Media.Id)
             {
                 return NotFound();
             }
@@ -399,32 +388,33 @@ namespace FavoriteMovie.Controllers
                     System.Diagnostics.Debug.WriteLine("Error: " + error.ErrorMessage);
                 }
 
-                // Stocker les données dans la ViewBag
-                ViewBag.AllMediasTypes = allMediaTypes;
-                ViewBag.AllMediasGenres = allMediaGenres;
+                // Réinitialiser les données dans le modèle de vue
+                editMediaViewModel.AllMediasTypes = allMediaTypes
+                    .Select(mt => new SelectListItem { Value = mt.Id.ToString(), Text = mt.Name })
+                    .ToList();
+                editMediaViewModel.AllMediasGenres = allMediaGenres
+                    .Select(mg => new SelectListItem { Value = mg.Id.ToString(), Text = mg.Name })
+                    .ToList();
 
-                return View(mediasViewModel);
+                return View(editMediaViewModel);
             }
             else
             {
-                mediaToUpdate.Name = mediasViewModel.Media.Name;
-                mediaToUpdate.AllocineDescription = mediasViewModel.Media.AllocineDescription;
-                mediaToUpdate.Note = mediasViewModel.Media.Note;
-                mediaToUpdate.AllocineLink = mediasViewModel.Media.AllocineLink;
-                mediaToUpdate.StreamingLink = mediasViewModel.Media.StreamingLink;
+                // Mettez à jour les propriétés du média directement à partir du modèle de vue
+                mediaToUpdate.Name = editMediaViewModel.Media.Name;
+                mediaToUpdate.AllocineDescription = editMediaViewModel.Media.AllocineDescription;
+                mediaToUpdate.Note = editMediaViewModel.Media.Note;
+                mediaToUpdate.AllocineLink = editMediaViewModel.Media.AllocineLink;
+                mediaToUpdate.StreamingLink = editMediaViewModel.Media.StreamingLink;
 
                 // Assurez-vous que MediaGenres est initialisé
-                if (mediaToUpdate.MediasGenres == null)
-                {
-                    mediaToUpdate.MediasGenres = new List<MediaGenre>();
-                }
+                mediaToUpdate.MediasGenres ??= new List<MediaGenre>();
 
                 // MediaType
-                mediaToUpdate.MediaType = await _context.MediaType.FindAsync(mediasViewModel.Media.MediaType.Id);
-
+                mediaToUpdate.MediaType = await _context.MediaType.FindAsync(int.Parse(editMediaViewModel.SelectedMediaType));
 
                 // MediaGenres
-                var selectedGenres = mediasViewModel.SelectedMediaGenre
+                var selectedGenres = editMediaViewModel.SelectedMediaGenre
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(int.Parse)
                     .ToList();
@@ -465,7 +455,7 @@ namespace FavoriteMovie.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MediaExists(mediasViewModel.Media.Id))
+                    if (!MediaExists(editMediaViewModel.Media.Id))
                     {
                         return NotFound();
                     }
@@ -479,6 +469,7 @@ namespace FavoriteMovie.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
 
         /* ----------------------------------------------------------------
          * View Delete an Media
@@ -510,13 +501,13 @@ namespace FavoriteMovie.Controllers
             }
 
             // 4) Créer le modèle de vue pour le média
-            var mediaViewModel = new MediaViewModel
+            var deleteMediaViewModel = new DeleteMediaViewModel
             {
                 Media = media
             };
 
             // 5) Renvoyer la vue avec le modèle de vue contenant les détails du média
-            return View(mediaViewModel);
+            return View(deleteMediaViewModel);
         }
 
         // POST: Medias/Delete/5
