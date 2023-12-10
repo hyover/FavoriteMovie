@@ -1,5 +1,6 @@
 ﻿using FavoriteMovie.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace FavoriteMovie.ViewsModels.Media
@@ -14,6 +15,10 @@ namespace FavoriteMovie.ViewsModels.Media
         [Required(ErrorMessage = "S'il te plait entre courte note.")]
         [StringLength(255, ErrorMessage = "La note doit avoir une longueur comprise entre {2} and {1}.", MinimumLength = 5)]
         public string Note { get; set; }
+
+        // Liste des genres & types
+        public ICollection<SelectListItem> AllMediasTypes { get; set; }
+        public ICollection<SelectListItem> AllMediasGenres { get; set; }
 
         // FK
         public virtual IdentityUser User { get; set; }

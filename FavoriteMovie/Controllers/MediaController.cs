@@ -349,6 +349,9 @@ namespace FavoriteMovie.Controllers
                     //SelectedMediaGenre will be populated in your view
             };
 
+            // Mettre à jour la date de mise à jour
+            editMediaViewModel.Media.BeforeSaveChanges();
+
             // 7) Renvoyer la vue avec le modèle de vue contenant les détails du média
             return View(editMediaViewModel);
         }
