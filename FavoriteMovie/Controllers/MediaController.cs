@@ -408,7 +408,7 @@ namespace FavoriteMovie.Controllers
                 mediaToUpdate.StreamingLink = editMediaViewModel.Media.StreamingLink;
 
                 // Assurez-vous que MediaGenres est initialisé
-                mediaToUpdate.MediasGenres ??= new List<MediaGenre>();
+                mediaToUpdate.MediasGenres ??= new List<MediaGenre>();  
 
                 // MediaType
                 mediaToUpdate.MediaType = await _context.MediaType.FindAsync(int.Parse(editMediaViewModel.SelectedMediaType));
