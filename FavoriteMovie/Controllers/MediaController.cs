@@ -248,33 +248,35 @@ namespace FavoriteMovie.Controllers
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine("Le ModelState est valide");
-                    
+                //System.Diagnostics.Debug.WriteLine("Le ModelState est valide");
 
-                    // Créez une nouvelle instance de Media en utilisant les propriétés de mediasViewModel
-                    var media= new Media
-                    {                  
-                        Name = createMediaViewModel.Name,
-                        AllocineDescription = createMediaViewModel.AllocineDescription,
-                        Note = createMediaViewModel.Note,
-                        AllocineLink = createMediaViewModel.AllocineDescription,
-                        User = createMediaViewModel.User,
-                        StreamingLink = createMediaViewModel.StreamingLink,
-                        MediaType = createMediaViewModel.MediaType,
-                        MediasGenres = createMediaViewModel.MediasGenres
-                    };
-                    System.Diagnostics.Debug.WriteLine(media.User);
-                    System.Diagnostics.Debug.WriteLine(media.MediaType);
+                var media = new Media
+                {
+                    Name = createMediaViewModel.Name,
+                    AllocineDescription = createMediaViewModel.AllocineDescription,
+                    Note = createMediaViewModel.Note,
+                    AllocineLink = createMediaViewModel.AllocineLink,
+                    User = _context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier)),
+                    StreamingLink = createMediaViewModel.StreamingLink,
 
-                    // Mettre à jour la date de mise à jour
-                    media.BeforeSaveChanges();
+                    MediaType = await _context.MediaType.FindAsync(createMediaViewModel.SelectedMediaType),
+
+                    MediasGenres = await _context.MediaGenre
+                       .Where(g => createMediaViewModel.SelectedMediaGenre
+                                       .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(int.Parse)
+                                       .Contains(g.Id))
+                                       .ToListAsync(),
+            };
+                // Mettre à jour la date de mise à jour
+                media.BeforeSaveChanges();
 
 
-                    //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
+                //System.Diagnostics.Debug.WriteLine("Le titre est instancié");
 
-                    // 3) Mettre à jour la base de données
-                    // Ajout du média à la base de données
-                    _context.Add(media);
+                // 3) Mettre à jour la base de données
+                // Ajout du média à la base de données
+                _context.Add(media);
 
 
                     // Enregistrement des modifications dans la base de données de manière asynchrone

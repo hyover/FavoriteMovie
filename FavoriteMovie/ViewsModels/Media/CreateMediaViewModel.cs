@@ -16,18 +16,16 @@ namespace FavoriteMovie.ViewsModels.Media
         [StringLength(255, ErrorMessage = "La note doit avoir une longueur comprise entre {2} and {1}.", MinimumLength = 5)]
         public string Note { get; set; }
 
-        // Liste des genres & types
-        public ICollection<SelectListItem> AllMediasTypes { get; set; }
-        public ICollection<SelectListItem> AllMediasGenres { get; set; }
-
-        // FK
-        public virtual IdentityUser User { get; set; }
-        public virtual MediaType MediaType { get; set; }
-        public virtual ICollection<MediaGenre> MediasGenres { get; set; }
-
         // Optional
         public string? AllocineDescription { get; set; }
         public string? AllocineLink { get; set; }
         public string? StreamingLink { get; set; }
+
+        [Display(Name = "Selected Media Genre")]
+        public string SelectedMediaGenre { get; set; }
+
+        [Display(Name = "Selected Media Type")]
+        public int SelectedMediaType { get; set; }
+
     }
 }

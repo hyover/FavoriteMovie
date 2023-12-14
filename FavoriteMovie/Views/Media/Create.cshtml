@@ -12,21 +12,20 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="User" value="@User.Identity" />
             <div class="form-group mb-2">
                 <label>Champs obligatoires :</label>
             </div>
 
             <div id="select-type" class="form-group">
                 <select class="virtual-select" placeholder="Sélectionnez un type" data-search="false"
-                        asp-for="MediaType">
+                        asp-for="SelectedMediaType">
                     <option value="" disabled selected>Un choix possible..</option>
                     @foreach (var mediaType in ViewBag.AllMediasTypes)
                     {
-                        <option value="@mediaType">@mediaType.Name</option>
+                        <option value="@mediaType.Id">@mediaType.Name</option>
                     }
                 </select>
-                <span asp-validation-for="MediaType" class="text-danger"></span>
+                <span asp-validation-for="SelectedMediaType" class="text-danger"></span>
             </div>
 
 
@@ -34,13 +33,13 @@
                 <select class="virtual-select" multiple placeholder="Sélectionnez un ou plusieurs genres"
                         data-disable-select-all="true" data-search="true" data-search-placeholder-text="Recherche..."
                         data-no-search-results-text="Aucun résultat"
-                        asp-for="MediasGenres">
+                        asp-for="SelectedMediaGenre">
                     @foreach (var mediaGenre in ViewBag.AllMediasGenres)
                     {
-                        <option value="@mediaGenre">@mediaGenre.Name</option>
+                        <option value="@mediaGenre.Id">@mediaGenre.Name</option>
                     }
                 </select>
-                <span asp-validation-for="MediasGenres" class="text-danger"></span>
+                <span asp-validation-for="SelectedMediaGenre" class="text-danger"></span>
             </div>
 
 

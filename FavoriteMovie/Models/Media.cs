@@ -5,7 +5,8 @@
     {
         public class Media
         {
-            // PK
+             // PK
+            [Key]
             public int Id { get; set; }
 
             // Required
