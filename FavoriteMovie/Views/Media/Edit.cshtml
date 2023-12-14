@@ -1,4 +1,4 @@
-﻿@model FavoriteMovie.Models.Media
+﻿@model FavoriteMovie.ViewsModels.Media.EditMediaViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,41 +12,31 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Media.Id" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="Media.Name" class="control-label"></label>
+                <input asp-for="Media.Name" class="form-control" />
+                <span asp-validation-for="Media.Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Note" class="control-label"></label>
-                <input asp-for="Note" class="form-control" />
-                <span asp-validation-for="Note" class="text-danger"></span>
+                <label asp-for="Media.Note" class="control-label"></label>
+                <input asp-for="Media.Note" class="form-control" />
+                <span asp-validation-for="Media.Note" class="text-danger"></span>
+            </div>        
+            <div class="form-group">
+                <label asp-for="Media.AllocineDescription" class="control-label"></label>
+                <input asp-for="Media.AllocineDescription" class="form-control" />
+                <span asp-validation-for="Media.AllocineDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                <label asp-for="Media.AllocineLink" class="control-label"></label>
+                <input asp-for="Media.AllocineLink" class="form-control" />
+                <span asp-validation-for="Media.AllocineLink" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AllocineDescription" class="control-label"></label>
-                <input asp-for="AllocineDescription" class="form-control" />
-                <span asp-validation-for="AllocineDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AllocineLink" class="control-label"></label>
-                <input asp-for="AllocineLink" class="form-control" />
-                <span asp-validation-for="AllocineLink" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StreamingLink" class="control-label"></label>
-                <input asp-for="StreamingLink" class="form-control" />
-                <span asp-validation-for="StreamingLink" class="text-danger"></span>
+                <label asp-for="Media.StreamingLink" class="control-label"></label>
+                <input asp-for="Media.StreamingLink" class="form-control" />
+                <span asp-validation-for="Media.StreamingLink" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

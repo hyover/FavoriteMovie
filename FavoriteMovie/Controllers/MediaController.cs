@@ -348,7 +348,6 @@ namespace FavoriteMovie.Controllers
                 AllMediasGenres = allMediaGenres
                     .Select(mg => new SelectListItem { Value = mg.Id.ToString(), Text = mg.Name })
                     .ToList()
-                    //SelectedMediaGenre will be populated in your view
             };
 
             // Mettre à jour la date de mise à jour
