@@ -7,54 +7,95 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Media</h4>
+    <h4>Type : @Html.DisplayFor(model => model.Media.MediaType.Name)</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+        <dt class="col-sm-2">
+            Nom
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Media.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
+
+
+        @if (Model.Media.MediasGenres.Count > 1)
+        {
+            <dt class="col-sm-2">
+                Genres
+            </dt>
+        }
+        else
+        {
+            <dt class="col-sm-2">
+                Genre
+            </dt>
+        }
+
+        <dd class="col-sm-10">
+            @foreach (var mediaGenre in Model.Media.MediasGenres)
+            {
+                if (mediaGenre == Model.Media.MediasGenres.Last())
+                {
+                    <span>@mediaGenre.Name</span>
+                }
+                else
+                {
+                    <span>@mediaGenre.Name, </span>
+                }
+            }
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
+
+
+
+
+        <dt class="col-sm-2">
+            Contributeur
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Media.User.UserName)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
+        <dt class="col-sm-2">
+            Note personnel
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Media.Note)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AllocineDescription)
+        <dt class="col-sm-2">
+            Description
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AllocineDescription)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AllocineLink)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AllocineLink)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StreamingLink)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StreamingLink)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Media.AllocineDescription)
         </dd>
     </dl>
+    <div class="d-flex justify-content-around justify-content-sm-between">
+        @if (Model.Media.AllocineLink != null)
+        {
+            <div class="allocine-logo-block">
+                <a target="_blank" href=" @Html.DisplayFor(model => model.Media.AllocineLink)">
+                    <img class="allocine-logo" src="~/img/allocine.png" alt="allocine">
+                </a>
+            </div>
+        }
+        @if (Model.Media.StreamingLink != null)
+        {
+            <div>
+                <a target="_blank" class="glightbox_video" href=" @Html.DisplayFor(model => model.Media.StreamingLink)">
+                    <svg width="80" height="131" viewBox="0 0 131 131" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="inner-circle" d="M65 21C40.1488 21 20 41.1488 20 66C20 90.8512 40.1488 111 65 111C89.8512 111 110 90.8512 110 66C110 41.1488 89.8512 21 65 21Z" fill="#BF2428"></path>
+                        <circle class="outer_circle" cx="65.5" cy="65.5" r="64" stroke="#BF2428"></circle>
+                        <path class="play" fill-rule="evenodd" clip-rule="evenodd" d="M60 76V57L77 66.7774L60 76Z" fill="white"></path>
+                    </svg>
+                </a>
+            </div>
+        }
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="my-1">
+    <a asp-action="Index"><button class="btn btn-success btn-sm">Retour</button></a>
+    @if (User.IsInRole("Admin") || (Model.Media.User.UserName == @User.Identity.Name))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Media.Id"><button class="btn btn-sm btn-warning my-2">Modifier</button></a>
+        <a asp-action="Delete" asp-route-id="@Model.Media.Id"><button class="btn btn-danger btn-sm">Supprimer</button></a>
+    }
 </div>
+

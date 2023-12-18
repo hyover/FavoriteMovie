@@ -67,6 +67,7 @@ namespace FavoriteMovie.Controllers
             var mediasWithUrlQuery = _context.Media
                 .Include(m => m.MediaType)
                 .Include(m => m.MediasGenres)
+                .Include(m => m.User)
                 .Where(m => m.StreamingLink != null)
                 .Select(m => new IndexMediaViewModel
                 {
@@ -115,6 +116,7 @@ namespace FavoriteMovie.Controllers
             var mediasWaitingQuery = _context.Media
                               .Include(m => m.MediaType)
                               .Include(m => m.MediasGenres)
+                              .Include(m => m.User)
                               .Where(m => m.StreamingLink == null)
                               .Select(m => new IndexMediaViewModel
                               {
@@ -187,6 +189,7 @@ namespace FavoriteMovie.Controllers
             var media = await _context.Media
                 .Include(m => m.MediasGenres) // Inclure la relation avec MediaGenres
                 .Include(m => m.MediaType)   // Inclure la relation avec MediaType
+                .Include(m => m.User)        // Inclure la relation avec User
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             //  3) Vérifier si le média existe 
